@@ -1,0 +1,39 @@
+# Dependency directories
+node_modules/
+
+# Built outputs
+dist/
+build/
+
+# Prisma client generated output
+/src/generated/prisma/
+
+# Testing
+coverage/
+
+# Environment files
+.env
+.env.*
+!.env.example
+
+# Logs
+logs/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# System & Editor Files
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.swp
+
+# IDE/AI Assistant folders
+.claude/
+.windsurf/
