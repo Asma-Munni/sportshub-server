@@ -4,6 +4,8 @@ import {
   createProductController,
   getAllProductsController,
   getProductByIdController,
+  updateProductController,
+  deleteProductController,
 } from "./product.controller.js";
 
 import {
@@ -15,15 +17,28 @@ const router = Router();
 
 // Public routes
 router.get("/", getAllProductsController);
-
 router.get("/:id", getProductByIdController);
 
-// Admin only route
+// Admin only routes
 router.post(
   "/",
   requireAuth,
   requireAdmin,
   createProductController
+);
+
+router.patch(
+  "/:id",
+  requireAuth,
+  requireAdmin,
+  updateProductController
+);
+
+router.delete(
+  "/:id",
+  requireAuth,
+  requireAdmin,
+  deleteProductController
 );
 
 export default router;

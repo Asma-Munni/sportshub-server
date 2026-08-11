@@ -186,21 +186,7 @@ export const updateProduct = async (
   return product;
 };
  
-type UpdateProductPayload = {
-  name?: string;
-  slug?: string;
-  description?: string;
-  price?: number;
-  stock?: number;
-  image?: string;
-  categoryId?: string;
-  status?: "AVAILABLE" | "OUT_OF_STOCK" | "INACTIVE";
-};
-
-export const updateProduct = async (
-  id: string,
-  payload: UpdateProductPayload
-) => {
+export const deleteProduct = async (id: string) => {
   const existingProduct = await prisma.product.findUnique({
     where: {
       id,
@@ -211,64 +197,14 @@ export const updateProduct = async (
     throw new Error("Product not found");
   }
 
-  if (payload.slug) {
-    const duplicateProduct = await prisma.product.findFirst({
-      where: {
-        slug: payload.slug,
-        id: {
-          not: id,
-        },
-      },
-    });
-
-    if (duplicateProduct) {
-      throw new Error("Product slug already exists");
-    }
-  }
-
-  if (payload.categoryId) {
-    const category = await prisma.category.findUnique({
-      where: {
-        id: payload.categoryId,
-      },
-    });
-
-    if (!category || category.isDeleted) {
-      throw new Error("Category not found");
-    }
-
-    if (category.status !== "ACTIVE") {
-      throw new Error("Category is inactive");
-    }
-  }
-
-  if (payload.price !== undefined && payload.price < 0) {
-    throw new Error("Price cannot be negative");
-  }
-
-  if (payload.stock !== undefined && payload.stock < 0) {
-    throw new Error("Stock cannot be negative");
-  }
-
-  const data = {
-    ...payload,
-
-    ...(payload.stock !== undefined &&
-      payload.status === undefined && {
-        status:
-          payload.stock > 0
-            ? ("AVAILABLE" as const)
-            : ("OUT_OF_STOCK" as const),
-      }),
-  };
-
   const product = await prisma.product.update({
     where: {
       id,
     },
-
-    data,
-
+    data: {
+      isDeleted: true,
+      status: "INACTIVE",
+    },
     include: {
       category: true,
     },
