@@ -1,13 +1,27 @@
 import { betterAuth } from "better-auth";
 import { prismaAdapter } from "better-auth/adapters/prisma";
-import { prisma } from "./prisma.js";
-import { hashPassword, verifyPassword } from "./password.js";
 import { jwt } from "better-auth/plugins";
+
+import { prisma } from "./prisma.js";
+import {
+  hashPassword,
+  verifyPassword,
+} from "./password.js";
+
+const frontendUrl =
+  process.env.FRONTEND_URL ||
+  "http://localhost:3000";
+
+const backendUrl =
+  process.env.BETTER_AUTH_URL ||
+  "http://localhost:5000";
 
 export const auth = betterAuth({
   appName: "SportsHub",
 
-  trustedOrigins: ["http://localhost:3000"],
+  baseURL: backendUrl,
+
+  trustedOrigins: [frontendUrl],
 
   database: prismaAdapter(prisma, {
     provider: "postgresql",
@@ -49,20 +63,38 @@ export const auth = betterAuth({
     },
   },
 
-  plugins: [
-  jwt({
-    jwt: {
-      expirationTime: "1h",
+  advanced: {
+    defaultCookieAttributes: {
+      httpOnly: true,
 
-      definePayload: ({ user }) => {
-        return {
-          id: user.id,
-          name: user.name,
-          email: user.email,
-          role: user.role,
-        };
-      },
+      secure:
+        process.env.NODE_ENV ===
+        "production",
+
+      sameSite:
+        process.env.NODE_ENV ===
+        "production"
+          ? "none"
+          : "lax",
     },
-  }),
-],
+  },
+
+  plugins: [
+    jwt({
+      jwt: {
+        expirationTime: "1h",
+
+        definePayload: ({
+          user,
+        }) => {
+          return {
+            id: user.id,
+            name: user.name,
+            email: user.email,
+            role: user.role,
+          };
+        },
+      },
+    }),
+  ],
 });

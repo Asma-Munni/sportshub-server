@@ -1,4 +1,9 @@
-import express, { Application, Request, Response } from "express";
+import express, {
+  Application,
+  Request,
+  Response,
+} from "express";
+
 import cors from "cors";
 import { toNodeHandler } from "better-auth/node";
 
@@ -10,31 +15,62 @@ import router from "./routes/index.js";
 
 const app: Application = express();
 
+const frontendUrl =
+  process.env.FRONTEND_URL ||
+  "http://localhost:3000";
+
+const allowedOrigins = Array.from(
+  new Set([
+    "http://localhost:3000",
+    frontendUrl,
+  ])
+);
+
 app.use(
   cors({
-    origin: "http://localhost:3000",
+    origin: allowedOrigins,
     credentials: true,
-    methods: ["GET", "POST", "PUT", "PATCH", "DELETE"],
+    methods: [
+      "GET",
+      "POST",
+      "PUT",
+      "PATCH",
+      "DELETE",
+    ],
+    allowedHeaders: [
+      "Content-Type",
+      "Authorization",
+    ],
   })
 );
 
 // Better Auth must stay before express.json()
-app.all("/api/auth/*splat", toNodeHandler(auth));
+app.all(
+  "/api/auth/*splat",
+  toNodeHandler(auth)
+);
 
 app.use(express.json());
 
 // Main application routes
 app.use("/api", router);
 
-// Other test/protected routes
+// Admin routes
 app.use("/api/admin", adminRouter);
+
+// JWT protected routes
 app.use("/api/jwt", jwtRouter);
 
-app.get("/", (req: Request, res: Response) => {
-  res.status(200).json({
-    success: true,
-    message: "SportsHub API is running successfully",
-  });
-});
+// Health Check
+app.get(
+  "/",
+  (_req: Request, res: Response) => {
+    res.status(200).json({
+      success: true,
+      message:
+        "SportsHub API is running successfully",
+    });
+  }
+);
 
 export default app;

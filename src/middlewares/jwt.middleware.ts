@@ -1,8 +1,23 @@
-import { NextFunction, Request, Response } from "express";
-import { createRemoteJWKSet, jwtVerify } from "jose";
+import {
+  NextFunction,
+  Request,
+  Response,
+} from "express";
+
+import {
+  createRemoteJWKSet,
+  jwtVerify,
+} from "jose";
+
+const backendUrl = (
+  process.env.BETTER_AUTH_URL ||
+  "http://localhost:5000"
+).replace(/\/$/, "");
 
 const JWKS = createRemoteJWKSet(
-  new URL("http://localhost:5000/api/auth/jwks")
+  new URL(
+    `${backendUrl}/api/auth/jwks`
+  )
 );
 
 export const verifyJWT = async (
@@ -11,30 +26,42 @@ export const verifyJWT = async (
   next: NextFunction
 ) => {
   try {
-    const authorization = req.headers.authorization;
+    const authorization =
+      req.headers.authorization;
 
-    if (!authorization || !authorization.startsWith("Bearer ")) {
+    if (
+      !authorization ||
+      !authorization.startsWith(
+        "Bearer "
+      )
+    ) {
       res.status(401).json({
         success: false,
-        message: "JWT token is required",
+        message:
+          "JWT token is required",
       });
+
       return;
     }
 
-    const token = authorization.split(" ")[1];
+    const token =
+      authorization.split(" ")[1];
 
-    const { payload } = await jwtVerify(token, JWKS, {
-      issuer: "http://localhost:5000",
-      audience: "http://localhost:5000",
-    });
+    const { payload } =
+      await jwtVerify(token, JWKS, {
+        issuer: backendUrl,
+        audience: backendUrl,
+      });
 
-    res.locals.jwtUser = payload;
+    res.locals.jwtUser =
+      payload;
 
     next();
-  } catch (error) {
+  } catch {
     res.status(401).json({
       success: false,
-      message: "Invalid or expired JWT token",
+      message:
+        "Invalid or expired JWT token",
     });
   }
 };
