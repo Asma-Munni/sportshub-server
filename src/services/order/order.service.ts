@@ -1,7 +1,6 @@
 // src/services/order/order.service.ts
 import { prisma } from "../../lib/prisma.js";
-import { Prisma } from "@prisma/client";
-
+import { Prisma } from "../../generated/prisma/client.js";
 export type OrderItemInput = {
   productId: string;
   quantity: number;

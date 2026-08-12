@@ -35,7 +35,10 @@ export const getMyOrdersController = async (req: Request, res: Response) => {
 };
 
 /** Get a single order – owner or admin */
-export const getOrderByIdController = async (req: Request, res: Response) => {
+export const getOrderByIdController = async (
+  req: Request<{ id: string }>,
+  res: Response
+) => {
   try {
     const orderId = req.params.id;
     const order = await getOrderById(orderId);
@@ -66,7 +69,10 @@ export const getAllOrdersController = async (_req: Request, res: Response) => {
 };
 
 /** Admin: update order status (and optionally payment status) */
-export const updateOrderStatusController = async (req: Request, res: Response) => {
+export const updateOrderStatusController = async (
+  req: Request<{ id: string }>,
+  res: Response
+) => {
   try {
     const orderId = req.params.id;
     const { status, paymentStatus } = req.body;
@@ -79,7 +85,10 @@ export const updateOrderStatusController = async (req: Request, res: Response) =
 };
 
 /** Admin: soft delete order */
-export const deleteOrderController = async (req: Request, res: Response) => {
+export const deleteOrderController = async (
+  req: Request<{ id: string }>,
+  res: Response
+) => {
   try {
     const orderId = req.params.id;
     await deleteOrder(orderId);

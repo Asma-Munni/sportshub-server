@@ -25,7 +25,10 @@ export const getWishlistController = async (req: Request, res: Response) => {
   }
 };
 
-export const removeFromWishlistController = async (req: Request, res: Response) => {
+export const removeFromWishlistController = async (
+  req: Request<{ id: string }>,
+  res: Response
+) => {
   try {
     const user = res.locals.user;
     const id = req.params.id;
